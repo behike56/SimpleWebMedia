@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+  django:
+    # コンテナ名
+    container_name: django
+    # ビルドするdockerファイルが格納されたディレクトリ
+    build: ./django
+    # 正常起動後に実行するコマンド
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      # マウントするディレクトリ
+      - ./django:/usr/src/app/
+    ports:
+      # ホスト側のポート：コンテナ側のポート
+      - 8000:8000
+    env_file:
+      # 環境変数に設定するファイル
+      - ./django/.env
+    depends_on:
+      # 接続するサービス
+      - mysql
+
+  mysql:
+    container_name: mysql
+    build: ./mysql/
+    env_file: ./mysql/.env_db
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    image: python_webmedia_db
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    volumes:
+      - ./django/static:/usr/src/app/static
+    ports:
+      - 80:80
+    depends_on:
+      - django
+
+volumes:
+  sample_postgis_data:

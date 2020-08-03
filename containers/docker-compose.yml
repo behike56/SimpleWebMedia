@@ -1,23 +1,18 @@
+# SimpleWebMedia: Django, MySQL, Nginx, gunicorn, pymysql
+# 全てDockerfilerから作成
 version: "3.7"
 services:
   django:
-    # コンテナ名
     container_name: django
-    # ビルドするdockerファイルが格納されたディレクトリ
     build: ./django
-    # 正常起動後に実行するコマンド
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
-      # マウントするディレクトリ
       - ./django:/usr/src/app/
     ports:
-      # ホスト側のポート：コンテナ側のポート
       - 8000:8000
     env_file:
-      # 環境変数に設定するファイル
       - ./django/.env
     depends_on:
-      # 接続するサービス
       - mysql
 
   mysql:
@@ -25,9 +20,11 @@ services:
     build: ./mysql/
     env_file: ./mysql/.env_db
     volumes:
-      - ./mysql:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d
-    image: python_webmedia_db
+      - ./mysql_db:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+    image: simple_webmedia_db
+    ports:
+      - "3306:3306"
 
   nginx:
     container_name: nginx
@@ -40,4 +37,4 @@ services:
       - django
 
 volumes:
-  sample_postgis_data:
+  mysql_db:

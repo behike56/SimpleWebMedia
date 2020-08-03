@@ -1,0 +1,5 @@
+.DS_Store
+.dockerignore
+Dockerfile
+docker-compose.yml
+db.sqlite3
